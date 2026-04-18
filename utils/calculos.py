@@ -46,12 +46,16 @@ def calcular_pagos_aplicados(deuda: Deuda) -> dict:
             pagos[item.id] = round(ya_pagado + aplicar, 2)
             restante = round(restante - aplicar, 2)
 
-    # Paso 2: aplicar abonos generales de arriba a abajo
+    # Paso 2: aplicar abonos generales de arriba a abajo (por fecha)
     for abono in deuda.abonos:
         if abono.items_ids:
             continue
         restante = abono.monto
-        for item in deuda.items:
+        
+        # IMPORTANTE: Ordenar ítems por fecha para que el abono cubra lo más antiguo primero
+        items_ordenados = sorted(deuda.items, key=lambda x: x.fecha)
+        
+        for item in items_ordenados:
             if restante <= 0:
                 break
             ya_pagado = pagos[item.id]

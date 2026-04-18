@@ -410,6 +410,7 @@ class DeudasView(ft.Column):
             on_confirmar=self._on_confirmar_abono_selectivo,
             on_seleccionar_fecha=self._seleccionar_por_fecha,
             on_limpiar=lambda e: self._limpiar_seleccion(),
+            pagos_aplicados=pagos,
         )
         # Guardar referencia para actualización sin rebuild
         self._panel_selectivo_ref = panel_sel
@@ -957,8 +958,11 @@ class DeudasView(ft.Column):
 
         # 2. Actualizar el panel de suma sin tocar la lista de filas
         if self._panel_selectivo_ref is not None:
+            from utils.calculos import calcular_pagos_aplicados
+            pagos = calcular_pagos_aplicados(self._deuda)
+            
             items_sel = [i for i in self._deuda.items if i.id in self._selected_items]
-            suma = sum(i.subtotal for i in items_sel)
+            suma = round(sum(max(0, i.subtotal - pagos.get(i.id, 0.0)) for i in items_sel), 2)
             n    = len(items_sel)
             panel = self._panel_selectivo_ref
             panel.visible = n > 0
@@ -1007,7 +1011,10 @@ class DeudasView(ft.Column):
         if not items_sel:
             return
 
-        suma = round(sum(i.subtotal for i in items_sel), 2)
+        from utils.calculos import calcular_pagos_aplicados
+        pagos = calcular_pagos_aplicados(self._deuda)
+        
+        suma = round(sum(max(0, i.subtotal - pagos.get(i.id, 0.0)) for i in items_sel), 2)
         ids  = [i.id for i in items_sel]
         nombres = ", ".join(i.nombre for i in items_sel[:3])
         if len(items_sel) > 3:

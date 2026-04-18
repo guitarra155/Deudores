@@ -12,6 +12,18 @@ El proyecto sigue una estructura desacoplada para facilitar el mantenimiento:
     - `whatsapp.py`: Motor de comunicación y plantillas.
 - **/database**: Capa de datos.
     - `repositorio.py`: Gestor central de persistencia atómica para Clientes y Faltantes.
+
+## 🧮 Lógica de Negocio y Cálculos
+
+### Distribución de Abonos
+El sistema procesa los pagos siguiendo reglas estrictas de prioridad:
+1.  **Abonos Selectivos**: Se aplican directamente a los IDs de productos elegidos por el usuario.
+2.  **Abonos Generales**: Se distribuyen automáticamente en orden **cronológico descendente** (lo más antiguo primero), basándose en el campo `fecha` de cada producto.
+3.  **Cálculo Neto**: En abonos selectivos, el sistema calcula automáticamente el saldo pendiente de cada ítem (Subtotal - Abonos previos) para evitar cobros duplicados.
+
+### Gestión de Deuda
+La deuda total se calcula dinámicamente restando la suma de todos los abonos a la suma de los subtotales de los productos.
+
 - **/models**: Estructuras de datos.
     - `cliente.py`, `deuda.py`.
 - **/views**: Interfaz de usuario (Flet).
@@ -27,6 +39,18 @@ Utiliza `user32.GetAsyncKeyState` para permitir un desplazamiento fluido (auto-r
 
 ### Sincronización en Red
 Implementa una vigilancia por `st_mtime`. Cuando una instancia de DeudorPro detecta que el archivo JSON en red ha sido modificado por otra PC, refresca los datos localmente y notifica al usuario.
+
+## 🛠️ Persistencia y Seguridad de Datos
+
+### JSON Handler (Escritura Atómica)
+Para garantizar que los archivos de datos no se corrompan ante fallos del sistema o cortes de energía, se utiliza una técnica de **Escritura Atómica**:
+1.  Los datos se escriben primero en un archivo temporal (`.tmp`).
+2.  Se verifica la integridad de la escritura.
+3.  Se utiliza `os.replace` para realizar un intercambio instantáneo con el archivo original.
+
+### Backup Manager
+El sistema realiza copias de seguridad cada 30 minutos y en cada evento de guardado.
+- **Validación de Integridad**: Antes de realizar un respaldo, el sistema verifica que el archivo origen sea un JSON válido. Si el archivo está corrupto, el sistema **no** sobrescribe el respaldo para proteger la última copia buena conocida.
 
 ### Portal de Autocompletado (Overlay Architecture)
 El autocompletado de productos utiliza un "Portal" (`page.overlay`) que flota sobre toda la aplicación. Implementa una lógica de **Flip dinámico** que alterna la posición (arriba/abajo) y ajusta su altura automáticamente según el espacio vertical disponible en la ventana.

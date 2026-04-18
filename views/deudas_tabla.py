@@ -285,8 +285,21 @@ def build_fila_item(
                 ft.Text(item.codigo_barras or "—", size=12, color=color_secundario, expand=2, style=estilo),
                 ft.Row(
                     [
-                        ft.IconButton(icon=ft.Icons.EDIT_NOTE,     icon_size=18, icon_color=ft.Colors.INDIGO_300, tooltip="Editar",   on_click=on_edit),
-                        ft.IconButton(icon=ft.Icons.DELETE_OUTLINE, icon_size=18, icon_color=ft.Colors.RED_400,   tooltip="Eliminar", on_click=on_delete),
+                        ft.IconButton(
+                            icon=ft.Icons.EDIT_NOTE,
+                            icon_size=18,
+                            icon_color=ft.Colors.INDIGO_300,
+                            tooltip="Editar",
+                            on_click=on_edit,
+                            disabled=tachado,
+                        ),
+                        ft.IconButton(
+                            icon=ft.Icons.DELETE_OUTLINE,
+                            icon_size=18,
+                            icon_color=ft.Colors.RED_400,
+                            tooltip="Eliminar",
+                            on_click=on_delete,
+                        ),
                     ],
                     spacing=0, width=70, tight=True, alignment=ft.MainAxisAlignment.END,
                 ),
@@ -298,8 +311,8 @@ def build_fila_item(
         bgcolor=fondo,
         border=ft.border.all(borde_ancho, borde_color) if borde_ancho > 0 else None,
         border_radius=6 if (es_hoy or seleccionado) else 0,
-        ink=True,
-        on_click=on_edit,
+        ink=not tachado,
+        on_click=on_edit if not tachado else None,
     )
 
 
@@ -308,12 +321,17 @@ def build_panel_abono_selectivo(
     on_confirmar: Callable,
     on_seleccionar_fecha: Callable,
     on_limpiar: Callable,
+    pagos_aplicados: dict = None,
 ) -> ft.Container:
     """
     Panel que aparece cuando hay ítems seleccionados para abono selectivo.
-    Muestra la suma, DatePicker para auto-seleccionar por fecha, y botón confirmar.
+    Muestra la suma restando lo que ya se abonó parcialmente.
     """
-    suma = sum(i.subtotal for i in items_seleccionados)
+    if pagos_aplicados is None:
+        pagos_aplicados = {}
+        
+    suma = sum(max(0, i.subtotal - pagos_aplicados.get(i.id, 0.0)) for i in items_seleccionados)
+    suma = round(suma, 2)
     n    = len(items_seleccionados)
 
     fecha_picker = ft.DatePicker(

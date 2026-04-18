@@ -35,7 +35,33 @@ def dialogo_item(
     nombre_f = ft.TextField(label="Producto *",       value="" if es_nuevo else item.nombre,     autofocus=True)
     cod_f    = ft.TextField(label="Observaciones",     value="" if es_nuevo else item.codigo_barras)
     precio_f = ft.TextField(label="Precio unitario *", value="" if es_nuevo else str(item.precio), keyboard_type=ft.KeyboardType.NUMBER)
-    fecha_f  = ft.TextField(label="Fecha",             value=datetime.now().strftime("%Y-%m-%d") if es_nuevo else item.fecha, read_only=es_nuevo)
+    # ── Campo fecha con selector ─────────────────────────────────── #
+    async def on_fecha_change(e):
+        if e.control.value:
+            fecha_f.value = e.control.value.strftime("%Y-%m-%d")
+            await fecha_f.update_async()
+
+    picker = ft.DatePicker(
+        on_change=on_fecha_change,
+        first_date=datetime(2020, 1, 1),
+        last_date=datetime(2030, 12, 31),
+    )
+    page.overlay.append(picker)
+
+    async def abrir_picker(e):
+        try:
+            picker.value = datetime.strptime(fecha_f.value, "%Y-%m-%d")
+        except Exception:
+            picker.value = datetime.now()
+        picker.open = True
+        await picker.update_async()
+
+    fecha_f  = ft.TextField(
+        label="Fecha",
+        value=datetime.now().strftime("%Y-%m-%d") if es_nuevo else item.fecha,
+        read_only=True, # Evitar edición manual para forzar el uso del calendario o mantener formato
+        suffix=ft.IconButton(ft.Icons.CALENDAR_MONTH, on_click=abrir_picker),
+    )
     error    = ft.Text("", color=ft.Colors.RED_400, size=12)
 
     control_ctd, cant_f = crear_control_cantidad(

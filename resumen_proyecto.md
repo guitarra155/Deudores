@@ -25,6 +25,17 @@
 - **Tareas (Ctrl+T)**: Sistema de checklist con reordenamiento automático de prioridades.
 - **Faltantes (Ctrl+L)**: Lista de compras sincronizada y ahora totalmente editable.
 
+### Avances Recientes (v2.2.1)
+*   **Blindaje de Datos**: Implementación de **Escritura Atómica** en todos los guardados de archivos JSON. Esto previene archivos corruptos ante fallos de energía.
+*   **Validación de Respaldos**: El `BackupManager` ahora valida la integridad del archivo original antes de sobrescribir el respaldo.
+*   **Usabilidad en Deudas**:
+    *   Ordenamiento automático por fecha cronológica (lo más antiguo arriba).
+    *   Prioridad de pagos alineada con el orden cronológico.
+    *   Corrección del cálculo de abono selectivo para descontar pagos parciales previos.
+    *   Nuevo selector de fecha (calendario) para editar productos.
+    *   Restricción de edición para ítems ya liquidados.
+*   **Git & Despliegue**: Repositorio oficial sincronizado con GitHub y documentación de comercialización creada.
+
 ### 5. Exportación y Comunicación
 - Generación de tickets PDF profesionales con ruta de guardado configurable desde la UI.
 - Envío de estados de cuenta vía WhatsApp con un click (plantillas configurables).
