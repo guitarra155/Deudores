@@ -1,0 +1,37 @@
+# Entorno Virtual
+.venv/
+env/
+venv/
+ENV/
+
+# Python: Compilados y Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# Build y Distribución
+build/
+dist/
+*.spec
+*.exe
+
+# Datos del Negocio (PRIVADO)
+data_storage/*.json
+data_storage/*.xlsx
+data_storage/exportaciones/
+
+# Activos de Usuario
+assets/logo_custom_*
+
+# Logs y Temporales
+*.log
+*.tmp
+.antigravity/
+.gemini/
+
+# IDE
+.vscode/
+.idea/
