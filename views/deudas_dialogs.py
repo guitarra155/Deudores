@@ -39,7 +39,7 @@ def dialogo_item(
     async def on_fecha_change(e):
         if e.control.value:
             fecha_f.value = e.control.value.strftime("%Y-%m-%d")
-            await fecha_f.update_async()
+            fecha_f.update()
 
     picker = ft.DatePicker(
         on_change=on_fecha_change,
@@ -54,7 +54,7 @@ def dialogo_item(
         except Exception:
             picker.value = datetime.now()
         picker.open = True
-        await picker.update_async()
+        picker.update()
 
     fecha_f  = ft.TextField(
         label="Fecha",
